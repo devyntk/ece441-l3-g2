@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 import { initializeApp } from 'firebase/app';
-import { auth } from 'firebaseui';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
 
 
 function App() {
+
 
   // TODO: Replace the following with your app's Firebase project configuration
   const firebaseConfig = {
@@ -19,27 +20,66 @@ function App() {
     measurementId: "G-76L6LKH6W6"
   };
 
-
   const app = initializeApp(firebaseConfig);
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth(app);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [loggedIn, setLoggedin] = useState(false);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/firebase.User
+      setLoggedin(true);
+    } else {
+      // User is signed out
+      // ...
+    }
+  });
+
+
+  if (loggedIn) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Welcome!
+          </p>
+          <button onClick={() => {
+            signOut(auth);
+            setLoggedin(false);
+          }}>Signout</button>
+        </header>
+      </div>
+    );
+  } else {
+    // No user is signed in.
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Edit <code>src/App.tsx</code> and save to reload.
+          </p>
+          <a
+            className="App-link"
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn React
+          </a>
+          <button onClick={() => {
+            signInWithPopup(auth, provider);
+          }}>Login</button>
+        </header>
+      </div>
+    );
+  }
+
 }
 
 export default App;
