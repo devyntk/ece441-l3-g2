@@ -17,3 +17,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ECE441_PORTAPOTTY }}'
           channelId: live
           projectId: ece441-portapotty
+          entryPoint: ./web/
