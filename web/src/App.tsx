@@ -4,6 +4,17 @@ import './App.css';
 
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 
 function App() {
@@ -33,7 +44,7 @@ function App() {
       setLoggedin(true);
     } else {
       // User is signed out
-      // ...
+      setLoggedin(false);
     }
   });
 
@@ -58,25 +69,34 @@ function App() {
   } else {
     // No user is signed in.
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Box component="form" sx={{ mt: 1 }}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              signInWithPopup(auth, provider);
+            }}
+            sx={{ mt: 3, mb: 2 }}
           >
-            Learn React
-          </a>
-          <button onClick={() => {
-            signInWithPopup(auth, provider);
-          }}>Login</button>
-        </header>
-      </div>
+            Sign In With Google
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
