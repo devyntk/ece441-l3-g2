@@ -4,17 +4,8 @@ import './App.css';
 
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Login from './Login';
+
 
 
 function App() {
@@ -32,7 +23,6 @@ function App() {
   };
 
   const app = initializeApp(firebaseConfig);
-  const provider = new GoogleAuthProvider();
   const auth = getAuth(app);
 
   const [loggedIn, setLoggedin] = useState(false);
@@ -61,7 +51,6 @@ function App() {
           </p>
           <button onClick={() => {
             signOut(auth);
-            setLoggedin(false);
           }}>Signout</button>
         </header>
       </div>
@@ -69,34 +58,7 @@ function App() {
   } else {
     // No user is signed in.
     return (
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box component="form" sx={{ mt: 1 }}>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            onClick={() => {
-              signInWithPopup(auth, provider);
-            }}
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Sign In With Google
-          </Button>
-        </Box>
-      </Box>
+      <Login />
     );
   }
 
