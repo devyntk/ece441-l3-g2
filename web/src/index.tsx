@@ -5,15 +5,25 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import CssBaseline from '@mui/material/CssBaseline';
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-
-const theme = createTheme();
+export const themeOptions: ThemeOptions = {
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#cc0000',
+    },
+    secondary: {
+      main: '#f50057',
+    },
+  },
+};
+const theme = createTheme(themeOptions);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

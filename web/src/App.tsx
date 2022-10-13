@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import { useState } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
+import { getMessaging } from "firebase/messaging";
 import Login from './Login';
+import Dashboard from './Dashboard';
 
 
 
@@ -24,6 +24,8 @@ function App() {
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  getAnalytics(app);
+  getMessaging(app);
 
   const [loggedIn, setLoggedin] = useState(false);
 
@@ -43,17 +45,7 @@ function App() {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Welcome!
-          </p>
-          <button onClick={() => {
-            signOut(auth);
-          }}>Signout</button>
-        </header>
-      </div>
+      <Dashboard />
     );
   } else {
     // No user is signed in.
