@@ -4,8 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getMessaging } from "firebase/messaging";
 import Login from './Login';
-import Dashboard from './Dashboard';
-
+import Home from './Home';
 
 
 function App() {
@@ -29,6 +28,7 @@ function App() {
 
   const [loggedIn, setLoggedin] = useState(false);
 
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is signed in, see docs for a list of available properties
@@ -45,7 +45,7 @@ function App() {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
     return (
-      <Dashboard />
+      <Home />
     );
   } else {
     // No user is signed in.

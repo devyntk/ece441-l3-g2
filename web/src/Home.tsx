@@ -9,31 +9,28 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
-import Chart from './Chart';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InfoIcon from '@mui/icons-material/Info';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
+import MapIcon from '@mui/icons-material/Map';
+import SensorDoorIcon from '@mui/icons-material/SensorDoor';
 import Button from '@mui/material/Button';
 import { getAuth, signOut } from 'firebase/auth';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { Route, Routes, Link as RouterLink  } from "react-router-dom";
 
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import Dashboard from './Pages/Dashboard';
+import Devices from './Pages/Devices';
+
 
 const drawerWidth: number = 240;
 
@@ -85,7 +82,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-function DashboardContent() {
+export default function Home() {
     const [open, setOpen] = React.useState(true);
     const toggleDrawer = () => {
         setOpen(!open);
@@ -130,11 +127,11 @@ function DashboardContent() {
                         Logout
                     </Button>
 
-                    <IconButton color="inherit">
+                    {/* <IconButton color="inherit">
                         <Badge badgeContent={4} color="secondary">
                             <NotificationsIcon />
                         </Badge>
-                    </IconButton>
+                    </IconButton> */}
 
                 </Toolbar>
             </AppBar>
@@ -153,9 +150,54 @@ function DashboardContent() {
                 </Toolbar>
                 <Divider />
                 <List component="nav">
-                    {mainListItems}
+                    <ListItemButton component={RouterLink} to="/">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Dashboard" />
+                    </ListItemButton>
+                    
+                    <ListItemButton component={RouterLink} to="/devices/">
+                        <ListItemIcon>
+                            <MapIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Devices" />
+                    </ListItemButton>
                     <Divider sx={{ my: 1 }} />
-                    {secondaryListItems}
+                    <ListSubheader component="div" inset>
+                        Selected Device
+                    </ListSubheader>
+                    <FormControl variant="standard" fullWidth  >
+                        <InputLabel id="demo-simple-select-label" sx={{ mx: 2 }}>Device</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            label="Device"
+                            sx={{ mx: 2 }}
+                        >
+                            <MenuItem value={10}>Ten</MenuItem>
+                            <MenuItem value={20}>Twenty</MenuItem>
+                            <MenuItem value={30}>Thirty</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <InfoIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Details" />
+                    </ListItemButton>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <SensorDoorIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Usage" />
+                    </ListItemButton>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <ThermostatIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Livability" />
+                    </ListItemButton>
                 </List>
             </Drawer>
             <Box
@@ -171,48 +213,11 @@ function DashboardContent() {
                 }}
             >
                 <Toolbar />
-                <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                    <Grid container spacing={3}>
-                        {/* Chart */}
-                        <Grid item xs={12} md={8} lg={9}>
-                            <Paper
-                                sx={{
-                                    p: 2,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    height: 240,
-                                }}
-                            >
-                                <Chart />
-                            </Paper>
-                        </Grid>
-                        {/* Recent Deposits */}
-                        <Grid item xs={12} md={4} lg={3}>
-                            <Paper
-                                sx={{
-                                    p: 2,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    height: 240,
-                                }}
-                            >
-                                {/* <Deposits /> */}
-                            </Paper>
-                        </Grid>
-                        {/* Recent Orders */}
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                                {/* <Orders /> */}
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                    <Copyright sx={{ pt: 4 }} />
-                </Container>
+                <Routes> 
+                    <Route path="/" element={<Dashboard />}/>
+                    <Route path="/devices/" element={<Devices />}/>
+                </Routes>
             </Box>
         </Box>
     );
-}
-
-export default function Dashboard() {
-    return <DashboardContent />;
 }
