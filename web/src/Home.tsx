@@ -30,6 +30,7 @@ import { Route, Routes, Link as RouterLink  } from "react-router-dom";
 
 import Dashboard from './Pages/Dashboard';
 import Devices from './Pages/Devices';
+import Input_field from './Components/Input_field';
 
 
 const drawerWidth: number = 240;
@@ -118,14 +119,18 @@ export default function Home() {
                     >
                         Dashboard
                     </Typography>
-
-
+                    <Button sx={{ color: '#fff' }} onClick={() => {
+                        const auth = getAuth();
+                    }}>
+                        <Input_field/>
+                    </Button>
                     <Button sx={{ color: '#fff' }} onClick={() => {
                         const auth = getAuth();
                         signOut(auth)
                     }}>
                         Logout
                     </Button>
+
 
                     {/* <IconButton color="inherit">
                         <Badge badgeContent={4} color="secondary">
@@ -149,6 +154,8 @@ export default function Home() {
                     </IconButton>
                 </Toolbar>
                 <Divider />
+
+
                 <List component="nav">
                     <ListItemButton component={RouterLink} to="/">
                         <ListItemIcon>
