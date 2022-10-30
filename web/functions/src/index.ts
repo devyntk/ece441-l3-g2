@@ -9,7 +9,10 @@ const TOKEN = "Jr0TCYhO3Nt7UpnYxEy3";
 // https://firebase.google.com/docs/functions/typescript
 
 export const inputTTN = functions.https.onRequest(async (request, response) => {
-  if (!request.headers.authorization ) {
+
+  const idToken = request.headers['x-ttn-token'];
+
+  if (!idToken) {
     functions.logger.error(
       'No Authorization Header'
     );
@@ -17,14 +20,14 @@ export const inputTTN = functions.https.onRequest(async (request, response) => {
     return;
   }
 
-  const idToken = request.headers.authorization;
 
   if (idToken == TOKEN) {
     functions.logger.log('ID Token correctly decoded');
   } else {
-    functions.logger.error('Error while verifying ID token');
+    functions.logger.error('Error while verifying ID token', {token: idToken});
     response.status(403).send('Unauthorized');
     return;
   }
 
+  response.status(200).send("Worked!");
 });

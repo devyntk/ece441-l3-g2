@@ -53,6 +53,7 @@ void processDownlink(ostime_t eventTimestamp, uint8_t fPort, uint8_t* data, uint
 void onLmicEvent(void *pUserData, ev_t ev);
 void displayTxSymbol(bool visible);
 
+
 #ifndef DO_WORK_INTERVAL_SECONDS            // Should be set in platformio.ini
     #define DO_WORK_INTERVAL_SECONDS 300    // Default 5 minutes if not set
 #endif    
