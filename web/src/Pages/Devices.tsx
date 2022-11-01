@@ -12,6 +12,7 @@ export default function Devices() {
             <Col key = {item.id}>
                 <DeviceItem {...item} />
                 </Col>
+
         ))}
         </Row>
         </>

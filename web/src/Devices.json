@@ -2,16 +2,26 @@
     {
         "id" : 1,
         "name" : "Device 1",
+        "Details" : "Location : Chicago",
+        "Usage" : "Not in use",
+        "Livability" : "30 years",
         "imgUrl": "/imgs/toilet1.png"
+        
     },
     {
         "id" : 2,
         "name" : "Device 2",
+        "Details" : "Location : Chicago",
+        "Usage" : "In use",
+        "Livability" : "50 years",
         "imgUrl": "/imgs/toilet2.png"
     },
     {
         "id" : 3,
         "name" : "Device 3",
+        "Details" : "Location : Chicago",
+        "Usage" : "In use",
+        "Livability" : "60 years",
         "imgUrl": "/imgs/toilet3.png"
     }
 ]
