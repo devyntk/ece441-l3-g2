@@ -164,7 +164,7 @@ export default function Home() {
                         <ListItemText primary="Dashboard" />
                     </ListItemButton>
                     
-                    <ListItemButton component={RouterLink} to="/devices/">
+                    <ListItemButton component={RouterLink} to="/Devices/">
                         <ListItemIcon>
                             <MapIcon />
                         </ListItemIcon>

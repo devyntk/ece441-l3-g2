@@ -1,0 +1,17 @@
+[
+    {
+        "id" : 1,
+        "name" : "Device 1",
+        "imgUrl": "/imgs/toilet1.png"
+    },
+    {
+        "id" : 2,
+        "name" : "Device 2",
+        "imgUrl": "/imgs/toilet2.png"
+    },
+    {
+        "id" : 3,
+        "name" : "Device 3",
+        "imgUrl": "/imgs/toilet3.png"
+    }
+]
