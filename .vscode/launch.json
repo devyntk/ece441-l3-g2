@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": true,
+      "externalConsole": false,
+      "cwd": "/Users/navyasheth/Desktop/Fall 2022/ECE 441/ece441-l3-g2/web/public/imgs",
+      "program": "/Users/navyasheth/Desktop/Fall 2022/ECE 441/ece441-l3-g2/web/public/imgs/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb"
+    }
+  ]
+}

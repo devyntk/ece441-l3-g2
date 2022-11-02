@@ -171,13 +171,15 @@ export default function Home() {
                         </ListItemIcon>
                         <ListItemText primary="Dashboard" />
                     </ListItemButton>
-            
                     <ListItemButton component={RouterLink} to="/Devices/">
                         <ListItemIcon>
-                            <MapIcon />
-                        </ListItemIcon>
+                            <MapIcon />  
+                        </ListItemIcon> 
+                        <ListItemButton onClick={handleClick}> 
+                        </ListItemButton> 
                         <ListItemText primary="Devices" />
                         {open ? <ExpandLess /> : <ExpandMore />}
+                       
                     </ListItemButton>
                     <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
@@ -186,14 +188,6 @@ export default function Home() {
               <StarBorder />
             </ListItemIcon>
             <ListItemText primary="Location" />
-          </ListItemButton>
-        </List>
-        <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>
-            <ListItemIcon>
-              <StarBorder />
-            </ListItemIcon>
-            <ListItemText primary="Usage" />
           </ListItemButton>
         </List>
         <List component="div" disablePadding>
