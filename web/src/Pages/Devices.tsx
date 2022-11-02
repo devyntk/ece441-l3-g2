@@ -1,6 +1,6 @@
-import devicesItems from "../Devices.json"
-import {Col, Row} from "react-bootstrap"
-import {DeviceItem} from "../Components/DeviceItem"
+import devicesItems from "../Devices.json";
+import {Col, Row} from "react-bootstrap";
+import {DeviceItem} from "../Components/DeviceItem";
 
 
 export default function Devices() {
@@ -16,5 +16,7 @@ export default function Devices() {
         ))}
         </Row>
         </>
+
+        
     )
 }

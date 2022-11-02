@@ -27,6 +27,10 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Route, Routes, Link as RouterLink  } from "react-router-dom";
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import StarBorder from '@mui/icons-material/StarBorder';
 
 import Dashboard from './Pages/Dashboard';
 import Devices from './Pages/Devices';
@@ -88,6 +92,10 @@ export default function Home() {
     const toggleDrawer = () => {
         setOpen(!open);
     };
+
+    const handleClick = () => {
+        setOpen(!open);
+      };
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -163,48 +171,50 @@ export default function Home() {
                         </ListItemIcon>
                         <ListItemText primary="Dashboard" />
                     </ListItemButton>
-                    
+            
                     <ListItemButton component={RouterLink} to="/Devices/">
                         <ListItemIcon>
                             <MapIcon />
                         </ListItemIcon>
                         <ListItemText primary="Devices" />
+                        {open ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
-                    <Divider sx={{ my: 1 }} />
-                    <ListSubheader component="div" inset>
-                        Selected Device
-                    </ListSubheader>
-                    <FormControl variant="standard" fullWidth  >
-                        <InputLabel id="demo-simple-select-label" sx={{ mx: 2 }}>Device</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            label="Device"
-                            sx={{ mx: 2 }}
-                        >
-                            <MenuItem value={10}>Ten</MenuItem>
-                            <MenuItem value={20}>Twenty</MenuItem>
-                            <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <InfoIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Details" />
-                    </ListItemButton>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <SensorDoorIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Usage" />
-                    </ListItemButton>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <ThermostatIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Livability" />
-                    </ListItemButton>
+                    <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Location" />
+          </ListItemButton>
+        </List>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Usage" />
+          </ListItemButton>
+        </List>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Usage" />
+          </ListItemButton>
+        </List>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Livability" />
+          </ListItemButton>
+        </List>
+      </Collapse>
+     
+                    
                 </List>
             </Drawer>
             <Box
