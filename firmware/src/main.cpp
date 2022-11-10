@@ -72,7 +72,10 @@ ostime_t lastOpen;
 bool occupied;
 uint32_t timeOpen;
 
-bool sgp_enable, shtc3_enable;
+
+Serial_& serial = Serial;
+EasyLed led(LED_BUILTIN, EasyLed::ActiveLevel::High);
+extern const char * const lmicErrorNames[];
 
 //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
 //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▀ █ █ █ █
@@ -82,7 +85,6 @@ static osjob_t collectJob;
 uint32_t doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS; // Change value in platformio.ini
 
 // Note: LoRa module pin mappings are defined in the Board Support Files.
-
 
 static void doWorkCallback(osjob_t *job)
 {
@@ -186,8 +188,42 @@ void processWork(ostime_t doWorkJobTimeStamp)
         // For simplicity LMIC-node will try to send an uplink
         // message every time processWork() is executed.
 
-        lpp.addUnixTime(CHANNEL_TIMESTAMP, timestamp);
-        lpp.addDigitalInput(CHANNEL_PIR, digitalRead(PIR_PIN));
+        // lpp.addUnixTime(CHANNEL_TIMESTAMP, timestamp);
+        uint32_t PIR = digitalRead(PIR_PIN);
+        serial.print("Got PIR Input:");
+        serial.println(PIR);
+        lpp.addDigitalInput(CHANNEL_PIR, PIR);
+
+        uint32_t liquid = analogRead(LIQUID_PIN);
+        printSpaces(serial, MESSAGE_INDENT);
+        serial.print("Got liquid Input:");
+        serial.println(liquid);
+        lpp.addAnalogInput(CHANNEL_LIQUID, liquid);
+
+        uint32_t door = digitalRead(DOOR_PIN);
+        printSpaces(serial, MESSAGE_INDENT);
+        serial.print("Door: ");
+        serial.println(door);
+        lpp.addDigitalInput(CHANNEL_DOOR, door);
+
+        sgp.IAQmeasure();
+        printSpaces(serial, MESSAGE_INDENT);
+        serial.print("CO2:");
+        serial.print(sgp.eCO2);
+        serial.print("  TVOC:");
+        serial.println(sgp.TVOC);
+        lpp.addTemperature(CHANNEL_CO2, sgp.eCO2);
+        lpp.addTemperature(CHANNEL_TVOC, sgp.TVOC);
+
+        sensors_event_t humidity, temp;
+        shtc3.getEvent(&humidity, &temp);
+        printSpaces(serial, MESSAGE_INDENT);
+        serial.print("Temp:");
+        serial.print(temp.temperature);
+        serial.print("  Humidity:");
+        serial.println(humidity.relative_humidity);
+        lpp.addTemperature(CHANNEL_TEMP, temp.temperature);
+        lpp.addRelativeHumidity(CHANNEL_HUM, humidity.relative_humidity);
 
         // Schedule uplink message if possible
         if (LMIC.opmode & OP_TXRXPEND)
@@ -204,7 +240,6 @@ void processWork(ostime_t doWorkJobTimeStamp)
         {
             // Prepare uplink payload.
             uint8_t fPort = 10;
-
             scheduleUplink(fPort, lpp.getBuffer(), lpp.getSize());
         }
     }
@@ -262,8 +297,6 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
 
 void setup()
 {
-    // boardInit(InitType::Hardware) must be called at start of setup() before anything else.
-    bool hardwareInitSucceeded = boardInit(InitType::Hardware);
 
 #ifdef USE_DISPLAY
     initDisplay();
@@ -273,39 +306,24 @@ void setup()
     initSerial(MONITOR_SPEED, WAITFOR_SERIAL_S);
 #endif
 
-    boardInit(InitType::PostInitSerial);
 
 #if defined(USE_SERIAL) || defined(USE_DISPLAY)
     printHeader(doWorkIntervalSeconds);
 #endif
 
-    if (!hardwareInitSucceeded)
-    {
-#ifdef USE_SERIAL
-        serial.println(F("Error: hardware init failed."));
-        serial.flush();
-#endif
-#ifdef USE_DISPLAY
-        // Following mesage shown only if failure was unrelated to I2C.
-        display.setCursor(COL_0, FRMCNTRS_ROW);
-        display.print(F("HW init failed"));
-#endif
-        abort();
-    }
-
     initLmic();
 
     //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▄ █▀▀ █▀▀ ▀█▀ █▀█
     //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▄ █▀▀ █ █  █  █ █
-    //  ▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀   ▀▀▀ ▀▀▀ ▀▀  ▀▀▀   ▀▀  ▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀
+    //  ▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀   ▀▀▀ ▀▀▀ ▀▀  ▀▀▀   ▀▀  ▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀ 
 
     pinMode(PIR_PIN, INPUT);
-    pinMode(WATER_LEVEL_0_PIN, INPUT);
-    pinMode(WATER_LEVEL_1_PIN, INPUT);
-    pinMode(WATER_LEVEL_2_PIN, INPUT);
-    pinMode(WATER_LEVEL_3_PIN, INPUT);
+    pinMode(WATER_LEVEL_0_PIN, INPUT_PULLDOWN);
+    pinMode(WATER_LEVEL_1_PIN, INPUT_PULLDOWN);
+    pinMode(WATER_LEVEL_2_PIN, INPUT_PULLDOWN);
+    pinMode(WATER_LEVEL_3_PIN, INPUT_PULLDOWN);
     pinMode(LIQUID_PIN, INPUT);
-    pinMode(DOOR_PIN, INPUT);
+    pinMode(DOOR_PIN, INPUT_PULLDOWN);
     pinMode(POWER_GOOD_PIN, INPUT);
     pinMode(CHARGING_PIN, INPUT);
 
@@ -313,31 +331,32 @@ void setup()
 
     if (sgp.begin())
     {
-        Serial.print("Found SGP30 serial #");
+        ostime_t timestamp = os_getTime();
+        printEvent(timestamp, "Found SGP30");
+        printSpaces(serial, MESSAGE_INDENT);
         Serial.print(sgp.serialnumber[0], HEX);
         Serial.print(sgp.serialnumber[1], HEX);
         Serial.println(sgp.serialnumber[2], HEX);
-        sgp_enable = true;
     }
     else
     {
-        sgp_enable = false;
-        Serial.println("SGP Sensor not found ");
+        ostime_t timestamp = os_getTime();
+        printEvent(timestamp, "SGP Sensor not found ");
     }
 
     if (shtc3.begin())
     {
-        shtc3_enable = true;
-        Serial.print("Found SHTC3 Sensor");
+        ostime_t timestamp = os_getTime();
+        printEvent(timestamp, "Found SHTC3 Sensor");
     }
     else
     {
-        shtc3_enable = false;
-        Serial.println("SHTC3 Sensor not found ");
+        ostime_t timestamp = os_getTime();
+        printEvent(timestamp, "SHTC3 Sensor not found ");
     }
 
-    attachInterrupt(digitalPinToInterrupt(DOOR_PIN), handleDoorOpen, RISING);
-    attachInterrupt(digitalPinToInterrupt(PIR_PIN), handlePIRChange, CHANGE);
+    // attachInterrupt(digitalPinToInterrupt(DOOR_PIN), handleDoorOpen, RISING);
+    // attachInterrupt(digitalPinToInterrupt(PIR_PIN), handlePIRChange, CHANGE);
 
     //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
     //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▀ █ █ █ █
@@ -356,3 +375,113 @@ void loop()
 {
     os_runloop_once();
 }
+
+const lmic_pinmap lmic_pins = {
+    .nss = 8,
+    .rxtx = LMIC_UNUSED_PIN,
+    .rst = 4,
+    .dio = { /*dio0*/ 3, /*dio1*/ 6, /*dio2*/ LMIC_UNUSED_PIN }
+#ifdef MCCI_LMIC
+    ,
+    .rxtx_rx_active = 0,
+    .rssi_cal = 8,
+    .spi_freq = 8000000     /* 8 MHz */
+#endif    
+};
+
+
+#ifdef MCCI_LMIC
+void onLmicEvent(void *pUserData, ev_t ev)
+#else
+void onEvent(ev_t ev)
+#endif
+{
+    // LMIC event handler
+    ostime_t timestamp = os_getTime();
+
+    switch (ev)
+    {
+#ifdef MCCI_LMIC
+    // Only supported in MCCI LMIC library:
+    case EV_RXSTART:
+        // Do not print anything for this event or it will mess up timing.
+        break;
+
+    case EV_TXSTART:
+        setTxIndicatorsOn();
+        printEvent(timestamp, ev);
+        break;
+
+    case EV_JOIN_TXCOMPLETE:
+    case EV_TXCANCELED:
+        setTxIndicatorsOn(false);
+        printEvent(timestamp, ev);
+        break;
+#endif
+    case EV_JOINED:
+        setTxIndicatorsOn(false);
+        printEvent(timestamp, ev);
+        printSessionKeys();
+
+        // Disable link check validation.
+        // Link check validation is automatically enabled
+        // during join, but because slow data rates change
+        // max TX size, it is not used in this example.
+        LMIC_setLinkCheckMode(0);
+
+        // The doWork job has probably run already (while
+        // the node was still joining) and have rescheduled itself.
+        // Cancel the next scheduled doWork job and re-schedule
+        // for immediate execution to prevent that any uplink will
+        // have to wait until the current doWork interval ends.
+        os_clearCallback(&collectJob);
+        os_setCallback(&collectJob, doWorkCallback);
+        break;
+
+    case EV_TXCOMPLETE:
+        // Transmit completed, includes waiting for RX windows.
+        setTxIndicatorsOn(false);
+        printEvent(timestamp, ev);
+        printFrameCounters();
+
+        // Check if downlink was received
+        if (LMIC.dataLen != 0 || LMIC.dataBeg != 0)
+        {
+            uint8_t fPort = 0;
+            if (LMIC.txrxFlags & TXRX_PORT)
+            {
+                fPort = LMIC.frame[LMIC.dataBeg - 1];
+            }
+            printDownlinkInfo();
+            processDownlink(timestamp, fPort, LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
+        }
+        break;
+
+    // Below events are printed only.
+    case EV_SCAN_TIMEOUT:
+    case EV_BEACON_FOUND:
+    case EV_BEACON_MISSED:
+    case EV_BEACON_TRACKED:
+    case EV_RFU1: // This event is defined but not used in code
+    case EV_JOINING:
+    case EV_JOIN_FAILED:
+    case EV_REJOIN_FAILED:
+    case EV_LOST_TSYNC:
+    case EV_RESET:
+    case EV_RXCOMPLETE:
+    case EV_LINK_DEAD:
+    case EV_LINK_ALIVE:
+#ifdef MCCI_LMIC
+    // Only supported in MCCI LMIC library:
+    case EV_SCAN_FOUND: // This event is defined but not used in code
+#endif
+        printEvent(timestamp, ev);
+        break;
+
+    default:
+        printEvent(timestamp, "Unknown Event");
+        break;
+    }
+}
+
+
