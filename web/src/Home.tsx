@@ -35,6 +35,8 @@ import StarBorder from '@mui/icons-material/StarBorder';
 import Dashboard from './Pages/Dashboard';
 import Devices from './Pages/Devices';
 import Input_field from './Components/Input_field';
+import WcIcon from '@mui/icons-material/Wc';
+import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 
 const drawerWidth: number = 240;
@@ -86,6 +88,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         },
     }),
 );
+
 
 export default function Home() {
     const [open, setOpen] = React.useState(true);
@@ -173,42 +176,10 @@ export default function Home() {
                     </ListItemButton>
                     <ListItemButton component={RouterLink} to="/Devices/">
                         <ListItemIcon>
-                            <MapIcon />  
+                            <WcIcon />  
                         </ListItemIcon> 
-                        <ListItemButton onClick={handleClick}> 
-                        </ListItemButton> 
                         <ListItemText primary="Devices" />
-                        {open ? <ExpandLess /> : <ExpandMore />}
-                       
-                    </ListItemButton>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>
-            <ListItemIcon>
-              <StarBorder />
-            </ListItemIcon>
-            <ListItemText primary="Location" />
-          </ListItemButton>
-        </List>
-        <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>
-            <ListItemIcon>
-              <StarBorder />
-            </ListItemIcon>
-            <ListItemText primary="Usage" />
-          </ListItemButton>
-        </List>
-        <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>
-            <ListItemIcon>
-              <StarBorder />
-            </ListItemIcon>
-            <ListItemText primary="Livability" />
-          </ListItemButton>
-        </List>
-      </Collapse>
-     
-                    
+                        </ListItemButton>          
                 </List>
             </Drawer>
             <Box
