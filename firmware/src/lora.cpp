@@ -2,6 +2,10 @@
 #include "funcs.h"
 
 extern osjob_t collectJob;
+extern Serial_& serial;
+extern EasyLed led;
+
+
 
 // Set LoRaWAN keys defined in lorawan-keys.h.
 #ifdef OTAA_ACTIVATION
@@ -226,96 +230,174 @@ void initLmic(bit_t adrEnabled,
 #endif
 }
 
-#ifdef MCCI_LMIC
-void onLmicEvent(void *pUserData, ev_t ev)
-#else
-void onEvent(ev_t ev)
-#endif
-{
-    // LMIC event handler
-    ostime_t timestamp = os_getTime();
 
-    switch (ev)
+
+#if defined(USE_SERIAL) || defined(USE_DISPLAY)
+
+        
+
+    void printChars(Print& printer, char ch, uint8_t count, bool linefeed)
     {
-#ifdef MCCI_LMIC
-    // Only supported in MCCI LMIC library:
-    case EV_RXSTART:
-        // Do not print anything for this event or it will mess up timing.
-        break;
-
-    case EV_TXSTART:
-        setTxIndicatorsOn();
-        printEvent(timestamp, ev);
-        break;
-
-    case EV_JOIN_TXCOMPLETE:
-    case EV_TXCANCELED:
-        setTxIndicatorsOn(false);
-        printEvent(timestamp, ev);
-        break;
-#endif
-    case EV_JOINED:
-        setTxIndicatorsOn(false);
-        printEvent(timestamp, ev);
-        printSessionKeys();
-
-        // Disable link check validation.
-        // Link check validation is automatically enabled
-        // during join, but because slow data rates change
-        // max TX size, it is not used in this example.
-        LMIC_setLinkCheckMode(0);
-
-        // The doWork job has probably run already (while
-        // the node was still joining) and have rescheduled itself.
-        // Cancel the next scheduled doWork job and re-schedule
-        // for immediate execution to prevent that any uplink will
-        // have to wait until the current doWork interval ends.
-        os_clearCallback(&collectJob);
-        os_setCallback(&collectJob, doWorkCallback);
-        break;
-
-    case EV_TXCOMPLETE:
-        // Transmit completed, includes waiting for RX windows.
-        setTxIndicatorsOn(false);
-        printEvent(timestamp, ev);
-        printFrameCounters();
-
-        // Check if downlink was received
-        if (LMIC.dataLen != 0 || LMIC.dataBeg != 0)
+        for (uint8_t i = 0; i < count; ++i)
         {
-            uint8_t fPort = 0;
-            if (LMIC.txrxFlags & TXRX_PORT)
-            {
-                fPort = LMIC.frame[LMIC.dataBeg - 1];
-            }
-            printDownlinkInfo();
-            processDownlink(timestamp, fPort, LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
+            printer.print(ch);
         }
-        break;
-
-    // Below events are printed only.
-    case EV_SCAN_TIMEOUT:
-    case EV_BEACON_FOUND:
-    case EV_BEACON_MISSED:
-    case EV_BEACON_TRACKED:
-    case EV_RFU1: // This event is defined but not used in code
-    case EV_JOINING:
-    case EV_JOIN_FAILED:
-    case EV_REJOIN_FAILED:
-    case EV_LOST_TSYNC:
-    case EV_RESET:
-    case EV_RXCOMPLETE:
-    case EV_LINK_DEAD:
-    case EV_LINK_ALIVE:
-#ifdef MCCI_LMIC
-    // Only supported in MCCI LMIC library:
-    case EV_SCAN_FOUND: // This event is defined but not used in code
-#endif
-        printEvent(timestamp, ev);
-        break;
-
-    default:
-        printEvent(timestamp, "Unknown Event");
-        break;
+        if (linefeed)
+        {
+            printer.println();
+        }
     }
-}
+
+
+    void printSpaces(Print& printer, uint8_t count, bool linefeed)
+    {
+        printChars(printer, ' ', count, linefeed);
+    }
+
+
+    void printHex(Print& printer, uint8_t* bytes, size_t length, bool linefeed, char separator)
+    {
+        for (size_t i = 0; i < length; ++i)
+        {
+            if (i > 0 && separator != 0)
+            {
+                printer.print(separator);
+            }
+            if (bytes[i] <= 0x0F)
+            {
+                printer.print('0');
+            }
+            printer.print(bytes[i], HEX);        
+        }
+        if (linefeed)
+        {
+            printer.println();
+        }
+    }
+
+
+    void setTxIndicatorsOn(bool on)
+    {
+        if (on)
+        {
+            #ifdef USE_LED
+                led.on();
+            #endif
+            #ifdef USE_DISPLAY
+                displayTxSymbol(true);
+            #endif           
+        }
+        else
+        {
+            #ifdef USE_LED
+                led.off();
+            #endif
+            #ifdef USE_DISPLAY
+                displayTxSymbol(false);
+            #endif           
+        }        
+    }
+    
+#endif  // USE_SERIAL || USE_DISPLAY
+
+
+#ifdef USE_DISPLAY 
+    uint8_t transmitSymbol[8] = {0x18, 0x18, 0x00, 0x24, 0x99, 0x42, 0x3c, 0x00}; 
+    #define ROW_0             0
+    #define ROW_1             1
+    #define ROW_2             2
+    #define ROW_3             3
+    #define ROW_4             4
+    #define ROW_5             5
+    #define ROW_6             6
+    #define ROW_7             7    
+    #define HEADER_ROW        ROW_0
+    #define DEVICEID_ROW      ROW_1
+    #define INTERVAL_ROW      ROW_2
+    #define TIME_ROW          ROW_4
+    #define EVENT_ROW         ROW_5
+    #define STATUS_ROW        ROW_6
+    #define FRMCNTRS_ROW      ROW_7
+    #define COL_0             0
+    #define ABPMODE_COL       10
+    #define CLMICSYMBOL_COL   14
+    #define TXSYMBOL_COL      15
+
+    void initDisplay()
+    {
+        display.begin();
+        display.setFont(u8x8_font_victoriamedium8_r); 
+    }
+
+    void displayTxSymbol(bool visible = true)
+    {
+        if (visible)
+        {
+            display.drawTile(TXSYMBOL_COL, ROW_0, 1, transmitSymbol);
+        }
+        else
+        {
+            display.drawGlyph(TXSYMBOL_COL, ROW_0, char(0x20));
+        }
+    }    
+#endif // USE_DISPLAY
+
+
+#ifdef USE_SERIAL
+    bool initSerial(unsigned long speed, int16_t timeoutSeconds)
+    {
+        // Initializes the serial port.
+        // Optionally waits for serial port to be ready.
+        // Will display status and progress on display (if enabled)
+        // which can be useful for tracing (e.g. ATmega328u4) serial port issues.
+        // A negative timeoutSeconds value will wait indefinitely.
+        // A value of 0 (default) will not wait.
+        // Returns: true when serial port ready,
+        //          false when not ready.
+
+        serial.begin(speed);
+
+        #if WAITFOR_SERIAL_S != 0
+            if (timeoutSeconds != 0)
+            {   
+                bool indefinite = (timeoutSeconds < 0);
+                uint16_t secondsLeft = timeoutSeconds; 
+                #ifdef USE_DISPLAY
+                    display.setCursor(0, ROW_1);
+                    display.print(F("Waiting for"));
+                    display.setCursor(0,  ROW_2);                
+                    display.print(F("serial port"));
+                #endif
+
+                while (!serial && (indefinite || secondsLeft > 0))
+                {
+                    if (!indefinite)
+                    {
+                        #ifdef USE_DISPLAY
+                            display.clearLine(ROW_4);
+                            display.setCursor(0, ROW_4);
+                            display.print(F("timeout in "));
+                            display.print(secondsLeft);
+                            display.print('s');
+                        #endif
+                        --secondsLeft;
+                    }
+                    delay(1000);
+                }  
+                #ifdef USE_DISPLAY
+                    display.setCursor(0, ROW_4);
+                    if (serial)
+                    {
+                        display.print(F("Connected"));
+                    }
+                    else
+                    {
+                        display.print(F("NOT connected"));
+                    }
+                #endif
+            }
+        #endif
+
+        return serial;
+    }
+#endif

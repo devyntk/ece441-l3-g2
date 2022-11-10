@@ -1,4 +1,7 @@
+#pragma once
+
 #include "LMIC-node.h"
+
 
 // print.cpp
 void printEvent(ostime_t timestamp,

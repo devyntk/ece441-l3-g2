@@ -29,5 +29,11 @@ export const inputTTN = functions.https.onRequest(async (request, response) => {
     return;
   }
 
+  if(request.body["uplink_message"] && request.body["uplink_message"]["decoded_payload"]) {
+    functions.logger.log('Found Decoded Payload:', {payload: request.body["uplink_message"]["decoded_payload"]});
+  } else {
+    functions.logger.error('Error getting decoded payload', {payload: request.body})
+  }
+
   response.status(200).send("Worked!");
 });

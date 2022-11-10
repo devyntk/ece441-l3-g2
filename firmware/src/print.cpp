@@ -1,6 +1,11 @@
 #include "LMIC-node.h"
 #include "funcs.h"
 
+extern const char * const lmicEventNames[];
+extern const char * const lmicErrorNames[];
+extern Serial_& serial;
+
+
 void printEvent(ostime_t timestamp,
                 const char *const message,
                 PrintTarget target,
