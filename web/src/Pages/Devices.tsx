@@ -29,12 +29,19 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 
-
 export default function Devices() {
   const [expanded, setExpanded] = React.useState(false);
+  const [expanded2, setExpanded2] = React.useState(false);
+  const [expanded3, setExpanded3] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
+  };
+  const handleExpandClick2 = () => {
+    setExpanded2(!expanded2);
+  };
+  const handleExpandClick3 = () => {
+    setExpanded3(!expanded3);
   };
     return (
       <div>
@@ -84,16 +91,16 @@ export default function Devices() {
          alt="toilet2"
       />
       <CardActions disableSpacing>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
+      <ExpandMore
+          expand={expanded2}
+          onClick={handleExpandClick2}
+          aria-expanded={expanded2}
           aria-label="show more"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded2} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>Details</Typography>
           <Typography paragraph>Location</Typography>
@@ -115,15 +122,15 @@ export default function Devices() {
       />
       <CardActions disableSpacing>
         <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
+          expand={expanded3}
+          onClick={handleExpandClick3}
+          aria-expanded={expanded3}
           aria-label="show more"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded3} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>Details</Typography>
           <Typography paragraph>Location</Typography>
