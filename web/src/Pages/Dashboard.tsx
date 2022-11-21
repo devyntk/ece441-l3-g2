@@ -2,6 +2,10 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Chart from '../Chart';
+import Component from "react";
+import * as React from 'react';
+import SimpleMap from './Input_Map';
+
 
 export default function Dashboard() {
     return <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -38,6 +42,14 @@ export default function Dashboard() {
                     {/* <Orders /> */}
                 </Paper>
             </Grid>
+           
         </Grid>
+        <div>
+            <SimpleMap/>
+
+           
+            </div>
+
     </Container>
+ 
 }

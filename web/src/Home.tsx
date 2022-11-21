@@ -32,6 +32,7 @@ import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import StarBorder from '@mui/icons-material/StarBorder';
 
+
 import Dashboard from './Pages/Dashboard';
 import Devices from './Pages/Devices';
 import Input_field from './Components/Input_field';
@@ -164,9 +165,10 @@ export default function Home() {
                         <ChevronLeftIcon />
                     </IconButton>
                 </Toolbar>
+         
                 <Divider />
 
-
+               
                 <List component="nav">
                     <ListItemButton component={RouterLink} to="/">
                         <ListItemIcon>
@@ -194,12 +196,16 @@ export default function Home() {
                     overflow: 'auto',
                 }}
             >
+               
                 <Toolbar />
                 <Routes> 
                     <Route path="/" element={<Dashboard />}/>
                     <Route path="/devices/" element={<Devices />}/>
                 </Routes>
             </Box>
+           
         </Box>
+
+
     );
 }
