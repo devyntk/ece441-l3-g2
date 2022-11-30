@@ -1,5 +1,5 @@
 // PIR Sensor
-#define PIR_PIN 1
+#define PIR_PIN 5
 
 // Water (Usage) Sensor
 #define WATER_LEVEL_0_PIN 13
@@ -14,7 +14,7 @@
 #define DOOR_PIN 10
 
 // Light
-#define LIGHT_PIN LED_BUILTIN
+#define LIGHT_PIN A4
 
 // Charging
 #define POWER_GOOD_PIN A2

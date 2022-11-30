@@ -3,7 +3,9 @@
 
 extern osjob_t collectJob;
 extern Serial_& serial;
+#ifdef USE_LED
 extern EasyLed led;
+#endif
 
 
 

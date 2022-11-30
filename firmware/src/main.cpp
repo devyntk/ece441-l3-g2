@@ -74,7 +74,9 @@ uint32_t timeOpen;
 
 
 Serial_& serial = Serial;
-EasyLed led(LED_BUILTIN, EasyLed::ActiveLevel::High);
+#ifdef USE_LED
+    EasyLed led(LED_BUILTIN, EasyLed::ActiveLevel::High);
+#endif
 extern const char * const lmicErrorNames[];
 
 //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
@@ -206,7 +208,9 @@ void processWork(ostime_t doWorkJobTimeStamp)
         serial.println(door);
         lpp.addDigitalInput(CHANNEL_DOOR, door);
 
-        sgp.IAQmeasure();
+        if(!sgp.IAQmeasure()){
+            printEvent(os_getTime(), "IAQ (Gas Sensor) measurement failed!");
+        }
         printSpaces(serial, MESSAGE_INDENT);
         serial.print("CO2:");
         serial.print(sgp.eCO2);
@@ -216,7 +220,9 @@ void processWork(ostime_t doWorkJobTimeStamp)
         lpp.addTemperature(CHANNEL_TVOC, sgp.TVOC);
 
         sensors_event_t humidity, temp;
-        shtc3.getEvent(&humidity, &temp);
+        if(!shtc3.getEvent(&humidity, &temp)){
+            printEvent(os_getTime(), "SHTC3 (Temp/Hum) measurement failed!");
+        }
         printSpaces(serial, MESSAGE_INDENT);
         serial.print("Temp:");
         serial.print(temp.temperature);
@@ -264,8 +270,9 @@ void handleDoorOpen()
 void handlePIRChange()
 {
     bool pir = digitalRead(PIR_PIN);
+    printEvent(os_getTime(), "PIR Input Changed");
     occupied = pir;
-    digitalWrite(LIGHT_PIN, HIGH);
+    digitalWrite(LIGHT_PIN, pir);
 }
 
 void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data, uint8_t dataLength)
@@ -356,7 +363,7 @@ void setup()
     }
 
     // attachInterrupt(digitalPinToInterrupt(DOOR_PIN), handleDoorOpen, RISING);
-    // attachInterrupt(digitalPinToInterrupt(PIR_PIN), handlePIRChange, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(PIR_PIN), handlePIRChange, CHANGE);
 
     //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
     //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▀ █ █ █ █
