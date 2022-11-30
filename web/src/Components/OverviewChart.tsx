@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
 import Typography from '@mui/material/Typography';
+import { collection, query, where, getDocs, getFirestore, onSnapshot, Timestamp } from "firebase/firestore";
 
 // Generate Sales Data
 function createData(time: string, amount?: number) {
@@ -20,12 +21,25 @@ const data = [
   createData('24:00', undefined),
 ];
 
+
 export default function Chart() {
+  const db = getFirestore();
   const theme = useTheme();
+
+  const [data, setData] = React.useState<{time: Timestamp, amount: number}[]>([])
+
+  const q = query(collection(db, "device-one"));
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const dataTemp: {time: Timestamp, amount: number}[] = [];
+    querySnapshot.forEach((doc) => {
+      dataTemp.push({time: doc.data().timestamp, amount: doc.data().liquid});
+    });
+    setData(dataTemp)
+  });
 
   return (
     <React.Fragment>
-      <Typography component="h2" variant="h6" color="primary" gutterBottom>Today</Typography>
+      <Typography component="h2" variant="h6" color="primary" gutterBottom>Water Level</Typography>
       <ResponsiveContainer>
         <LineChart
           data={data}
@@ -54,7 +68,7 @@ export default function Chart() {
                 ...theme.typography.body1,
               }}
             >
-              Sales ($)
+              Approximate Fill Level
             </Label>
           </YAxis>
           <Line

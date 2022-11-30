@@ -13,6 +13,11 @@ import { red } from '@mui/material/colors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Stack from '@mui/material/Stack';
+import Container from '@mui/material/Container';
+import { DeviceContext } from '../Home';
+import { useNavigate } from 'react-router-dom';
+import Link from '@mui/material/Link';
+import { Button } from '@mui/material';
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -30,119 +35,97 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 export default function Devices() {
-  const [expanded, setExpanded] = React.useState(false);
-  const [expanded2, setExpanded2] = React.useState(false);
-  const [expanded3, setExpanded3] = React.useState(false);
+  const [device, setDevice] = React.useContext(DeviceContext)
+  const navigate = useNavigate();
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-  const handleExpandClick2 = () => {
-    setExpanded2(!expanded2);
-  };
-  const handleExpandClick3 = () => {
-    setExpanded3(!expanded3);
-  };
-    return (
-      <div>
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         spacing={{ xs: 10, sm: 10, md: 10 }}
       >
-      <Card sx={{ maxWidth: 300 }}>
-      <CardHeader
-        title="Device 1"
-      />
-      <CardMedia
-         component="img"
-         height="500"
-         image="/imgs/toilet1.png"
-         alt="toilet1"
-      />
-      <CardActions disableSpacing>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Details</Typography>
-          <Typography paragraph>Location</Typography>
-          <Typography paragraph>Usage</Typography>
-          <Typography paragraph>Livability</Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
+        <Card sx={{ maxWidth: 300 }}>
+          <CardHeader
+            title="Device 1"
+          />
+          <CardMedia
+            component="img"
+            height="500"
+            image="/imgs/toilet1.png"
+            alt="toilet1"
+          />
+          <CardContent>
+            <Button onClick={() => {
+              setDevice(1);
+              navigate("/devices/detail/")
+            }}>Details</Button>
+            <Button onClick={() => {
+              setDevice(1);
+              navigate("/devices/usage/")
+            }}>Usage</Button>
+            <Button onClick={() => {
+              setDevice(1);
+              navigate("/devices/livability/")
+            }}>Livability</Button>
+          </CardContent>
+        </Card>
 
-    <Card sx={{ maxWidth: 300 }}>
-    <CardHeader
-        title="Device 2"
+        <Card sx={{ maxWidth: 300 }}>
+          <CardHeader
+            title="Device 2"
 
-      />
-      <CardMedia
-         component="img"
-         height="500"
-         image="/imgs/toilet2.png"
-         alt="toilet2"
-      />
-      <CardActions disableSpacing>
-      <ExpandMore
-          expand={expanded2}
-          onClick={handleExpandClick2}
-          aria-expanded={expanded2}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded2} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Details</Typography>
-          <Typography paragraph>Location</Typography>
-          <Typography paragraph>Usage</Typography>
-          <Typography paragraph>Livability</Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
+          />
+          <CardMedia
+            component="img"
+            height="500"
+            image="/imgs/toilet2.png"
+            alt="toilet2"
+          />
+          <CardContent>
+            <Button onClick={() => {
+              setDevice(2);
+              navigate("/devices/detail/")
+            }}>Details</Button>
+            <Button onClick={() => {
+              setDevice(2);
+              navigate("/devices/usage/")
+            }}>Usage</Button>
+            <Button onClick={() => {
+              setDevice(2);
+              navigate("/devices/livability/")
+            }}>Livability</Button>
+          </CardContent>
+        </Card>
 
-    <Card sx={{ maxWidth: 300 }}>
-    <CardHeader
-        title="Device 3"
-      />
-      <CardMedia
-         component="img"
-         height="500"
-         image="/imgs/toilet3.png"
-         alt="toilet3"
-      />
-      <CardActions disableSpacing>
-        <ExpandMore
-          expand={expanded3}
-          onClick={handleExpandClick3}
-          aria-expanded={expanded3}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded3} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Details</Typography>
-          <Typography paragraph>Location</Typography>
-          <Typography paragraph>Usage</Typography>
-          <Typography paragraph>Livability</Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
+        <Card sx={{ maxWidth: 300 }}>
+          <CardHeader
+            title="Device 3"
+          />
+          <CardMedia
+            component="img"
+            height="500"
+            image="/imgs/toilet3.png"
+            alt="toilet3"
+          />
+          <CardContent>
+            <Button onClick={() => {
+              setDevice(3);
+              navigate("/devices/detail/")
+            }}>Details</Button>
+            <Button onClick={() => {
+              setDevice(3);
+              navigate("/devices/usage/")
+            }}>Usage</Button>
+            <Button onClick={() => {
+              setDevice(3);
+              navigate("/devices/livability/")
+            }}>Livability</Button>
+          </CardContent>
+        </Card>
 
 
 
-    </Stack>
-    </div>
+      </Stack>
+    </Container>
   );
 }

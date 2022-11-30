@@ -26,7 +26,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { Route, Routes, Link as RouterLink  } from "react-router-dom";
+import { Route, Routes, Link as RouterLink } from "react-router-dom";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -38,6 +38,7 @@ import Devices from './Pages/Devices';
 import Input_field from './Components/Input_field';
 import WcIcon from '@mui/icons-material/Wc';
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import DeviceDetail from './Pages/DeviceDetail';
 
 
 const drawerWidth: number = 240;
@@ -90,8 +91,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+export const DeviceContext = React.createContext<[number | null, React.Dispatch<React.SetStateAction<number | null>>]>([null, () => { }]);
 
 export default function Home() {
+    const [device, setDevice] = React.useState<number | null>(null);
+
     const [open, setOpen] = React.useState(true);
     const toggleDrawer = () => {
         setOpen(!open);
@@ -99,7 +103,7 @@ export default function Home() {
 
     const handleClick = () => {
         setOpen(!open);
-      };
+    };
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -134,7 +138,6 @@ export default function Home() {
                     <Button sx={{ color: '#fff' }} onClick={() => {
                         const auth = getAuth();
                     }}>
-                        <Input_field/>
                     </Button>
                     <Button sx={{ color: '#fff' }} onClick={() => {
                         const auth = getAuth();
@@ -165,10 +168,10 @@ export default function Home() {
                         <ChevronLeftIcon />
                     </IconButton>
                 </Toolbar>
-         
+
                 <Divider />
 
-               
+
                 <List component="nav">
                     <ListItemButton component={RouterLink} to="/">
                         <ListItemIcon>
@@ -176,12 +179,33 @@ export default function Home() {
                         </ListItemIcon>
                         <ListItemText primary="Dashboard" />
                     </ListItemButton>
-                    <ListItemButton component={RouterLink} to="/Devices/">
+                    <ListItemButton component={RouterLink} to="/devices/">
                         <ListItemIcon>
-                            <WcIcon />  
-                        </ListItemIcon> 
+                            <WcIcon />
+                        </ListItemIcon>
                         <ListItemText primary="Devices" />
-                        </ListItemButton>          
+                    </ListItemButton>
+                    {device != null ? <><ListSubheader component="div" inset>
+                        Selected Device ({device})
+                    </ListSubheader>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <InfoIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Details" />
+                        </ListItemButton>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <SensorDoorIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Usage" />
+                        </ListItemButton>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <ThermostatIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Livability" />
+                        </ListItemButton></> : <></>}
                 </List>
             </Drawer>
             <Box
@@ -196,14 +220,19 @@ export default function Home() {
                     overflow: 'auto',
                 }}
             >
-               
+
                 <Toolbar />
-                <Routes> 
-                    <Route path="/" element={<Dashboard />}/>
-                    <Route path="/devices/" element={<Devices />}/>
-                </Routes>
+                <DeviceContext.Provider value={[device, setDevice]}>
+                    <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/devices/" element={<Devices />} />
+                        <Route path="/devices/detail/" element={<DeviceDetail />} />
+                        <Route path="/devices/usage/" element={<DeviceDetail />} />
+                        <Route path="/devices/livability/" element={<DeviceDetail />} />
+                    </Routes>
+                </DeviceContext.Provider>
             </Box>
-           
+
         </Box>
 
 

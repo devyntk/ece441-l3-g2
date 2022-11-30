@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
@@ -7,10 +7,7 @@ import Login from './Login';
 import Home from './Home';
 
 
-
 function App() {
-
-
   // TODO: Replace the following with your app's Firebase project configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDAK-NEM2_3wgC29Jmz2NwL9KzHd7xvm8I",
@@ -24,8 +21,6 @@ function App() {
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  getAnalytics(app);
-  getMessaging(app);
 
   const [loggedIn, setLoggedin] = useState(false);
 
