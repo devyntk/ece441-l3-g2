@@ -135,7 +135,7 @@ export default function Home() {
             noWrap
             sx={{ flexGrow: 1 }}
           >
-            Dashboard
+            Portapotty Monitor
           </Typography>
           <Button
             sx={{ color: "#fff" }}

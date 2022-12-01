@@ -33,13 +33,18 @@ export default function SimpleMap() {
 
   const [data, setData] = React.useState<DocumentData[]>([]);
 
-  const unsubscribe = onSnapshot(collection(db, "devices"), (querySnapshot) => {
-    const dataTemp: DocumentData[] = [];
-    querySnapshot.forEach((doc) => {
-      dataTemp.push(doc.data());
+  React.useEffect(() => {
+    const ubsub = onSnapshot(collection(db, "devices"), (querySnapshot) => {
+      const dataTemp: DocumentData[] = [];
+      querySnapshot.forEach((doc) => {
+        dataTemp.push(doc.data());
+      });
+      setData(dataTemp);
+      return () => {
+        ubsub();
+      };
     });
-    setData(dataTemp);
-  });
+  }, []);
 
   const defaultProps = {
     center: {

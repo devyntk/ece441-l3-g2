@@ -7,6 +7,7 @@ import {
   YAxis,
   Label,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 import Typography from "@mui/material/Typography";
 import {
@@ -17,7 +18,9 @@ import {
   getFirestore,
   onSnapshot,
   Timestamp,
+  orderBy,
 } from "firebase/firestore";
+import { format, fromUnixTime, subDays } from "date-fns";
 
 // Generate Sales Data
 function createData(time: string, amount?: number) {
@@ -44,14 +47,26 @@ export default function Chart() {
     []
   );
 
-  const q = query(collection(db, "device-one"));
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const dataTemp: { time: Timestamp; amount: number }[] = [];
-    querySnapshot.forEach((doc) => {
-      dataTemp.push({ time: doc.data().timestamp, amount: doc.data().liquid });
+  const q = query(
+    collection(db, "device-one"),
+    orderBy("timestamp", "desc"),
+    where("timestamp", ">", subDays(new Date(), 1))
+  );
+  React.useEffect(() => {
+    const ubsub = onSnapshot(q, (querySnapshot) => {
+      const dataTemp: { time: Timestamp; amount: number }[] = [];
+      querySnapshot.forEach((doc) => {
+        dataTemp.push({
+          time: doc.data().timestamp,
+          amount: doc.data().water,
+        });
+      });
+      setData(dataTemp);
+      return () => {
+        ubsub();
+      };
     });
-    setData(dataTemp);
-  });
+  }, []);
 
   return (
     <React.Fragment>
@@ -69,13 +84,18 @@ export default function Chart() {
           }}
         >
           <XAxis
-            dataKey="time"
+            dataKey="time.seconds"
+            tickFormatter={(unixTime) => format(fromUnixTime(unixTime), "h:mm")}
             stroke={theme.palette.text.secondary}
             style={theme.typography.body2}
-          />
+            type="number"
+            domain={["auto", "auto"]}
+            scale="time"
+          ></XAxis>
           <YAxis
             stroke={theme.palette.text.secondary}
             style={theme.typography.body2}
+            domain={["dataMin", "dataMax"]}
           >
             <Label
               angle={270}
@@ -90,12 +110,13 @@ export default function Chart() {
             </Label>
           </YAxis>
           <Line
-            isAnimationActive={false}
+            isAnimationActive={true}
             type="monotone"
             dataKey="amount"
             stroke={theme.palette.primary.main}
             dot={false}
           />
+          <Tooltip></Tooltip>
         </LineChart>
       </ResponsiveContainer>
     </React.Fragment>

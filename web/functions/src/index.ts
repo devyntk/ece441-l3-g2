@@ -49,6 +49,10 @@ export const inputTTN = functions.https.onRequest(async (request, response) => {
     liquid: val['analog_in_5'],
     door: val['digital_in_6'],
     pir: val['digital_in_4'],
+    opens: val['digital_in_11'],
+    power_good: val['digital_in_2'],
+    charging: val['digital_in_3'],
+    water: val['digital_in_12'],
     timestamp: Timestamp.now()
   });
 

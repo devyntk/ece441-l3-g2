@@ -68,9 +68,7 @@ Adafruit_SHTC3 shtc3 = Adafruit_SHTC3();
 
 // custom globals:
 
-ostime_t lastOpen;
-bool occupied;
-uint32_t timeOpen;
+uint32_t opens;
 
 
 Serial_& serial = Serial;
@@ -190,11 +188,20 @@ void processWork(ostime_t doWorkJobTimeStamp)
         // For simplicity LMIC-node will try to send an uplink
         // message every time processWork() is executed.
 
-        // lpp.addUnixTime(CHANNEL_TIMESTAMP, timestamp);
         uint32_t PIR = digitalRead(PIR_PIN);
         serial.print("Got PIR Input:");
         serial.println(PIR);
         lpp.addDigitalInput(CHANNEL_PIR, PIR);
+
+        printSpaces(serial, MESSAGE_INDENT);
+        uint32_t charging = digitalRead(CHARGING_PIN);
+        serial.print("Charging:");
+        serial.print(charging);
+        uint32_t pgood = digitalRead(POWER_GOOD_PIN);
+        serial.print(" Power Good:");
+        serial.println(pgood);
+        lpp.addDigitalInput(CHANNEL_CHARGING, charging);
+        lpp.addDigitalInput(CHANNEL_POWER_GOOD, pgood);
 
         uint32_t liquid = analogRead(LIQUID_PIN);
         printSpaces(serial, MESSAGE_INDENT);
@@ -205,8 +212,18 @@ void processWork(ostime_t doWorkJobTimeStamp)
         uint32_t door = digitalRead(DOOR_PIN);
         printSpaces(serial, MESSAGE_INDENT);
         serial.print("Door: ");
-        serial.println(door);
+        serial.print(door);
         lpp.addDigitalInput(CHANNEL_DOOR, door);
+        serial.print("  Total Opens: ");
+        serial.println(opens);
+        lpp.addDigitalInput(CHANNEL_OPENS, opens);
+        opens = 0;
+
+        uint32_t water = digitalRead(WATER_LEVEL_0_PIN);
+        printSpaces(serial, MESSAGE_INDENT);
+        serial.print("Water: ");
+        serial.println(water);
+        lpp.addDigitalInput(CHANNEL_WATER, water);
 
         if(!sgp.IAQmeasure()){
             printEvent(os_getTime(), "IAQ (Gas Sensor) measurement failed!");
@@ -252,26 +269,23 @@ void processWork(ostime_t doWorkJobTimeStamp)
 }
 
 // Interrupt Handlers:
-
+ostime_t lastDoor;
 // Called on RISING of the door pin
 void handleDoorOpen()
 {
     ostime_t timestamp = os_getTime();
-    if (!occupied)
-    {
-        lastOpen = timestamp;
-    }
-    else
-    {
-        timeOpen += (timestamp - lastOpen);
-    }
+    if (timestamp - lastDoor < 500)
+        return;
+
+    printEvent(timestamp, "Door Open");
+    lastDoor = timestamp;
+    opens++;
 }
 
 void handlePIRChange()
 {
     bool pir = digitalRead(PIR_PIN);
     printEvent(os_getTime(), "PIR Input Changed");
-    occupied = pir;
     digitalWrite(LIGHT_PIN, pir);
 }
 
@@ -362,7 +376,7 @@ void setup()
         printEvent(timestamp, "SHTC3 Sensor not found ");
     }
 
-    // attachInterrupt(digitalPinToInterrupt(DOOR_PIN), handleDoorOpen, RISING);
+    attachInterrupt(digitalPinToInterrupt(DOOR_PIN), handleDoorOpen, RISING);
     attachInterrupt(digitalPinToInterrupt(PIR_PIN), handlePIRChange, CHANGE);
 
     //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄

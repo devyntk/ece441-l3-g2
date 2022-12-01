@@ -4,7 +4,9 @@
 #define CHANNEL_PIR 4
 #define CHANNEL_LIQUID 5
 #define CHANNEL_DOOR 6
+#define CHANNEL_OPENS 11
 #define CHANNEL_TEMP 7
 #define CHANNEL_HUM 8
 #define CHANNEL_TVOC 9
 #define CHANNEL_CO2 10
+#define CHANNEL_WATER 12

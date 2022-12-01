@@ -2,7 +2,7 @@
 #define PIR_PIN 5
 
 // Water (Usage) Sensor
-#define WATER_LEVEL_0_PIN 13
+#define WATER_LEVEL_0_PIN A5
 #define WATER_LEVEL_1_PIN 7
 #define WATER_LEVEL_2_PIN 11
 #define WATER_LEVEL_3_PIN 14

@@ -23,7 +23,7 @@ import {
 } from "firebase/firestore";
 import { format } from "date-fns";
 
-function StatPaper(props: { name: String; children: ReactNode }) {
+export function StatPaper(props: { name: String; children: ReactNode }) {
   return (
     <Grid item xs={12} md={4} lg={3}>
       <Paper
@@ -31,9 +31,10 @@ function StatPaper(props: { name: String; children: ReactNode }) {
           p: 2,
           display: "flex",
           flexDirection: "column",
+          height: "100%",
         }}
       >
-        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+        <Typography component="h3" variant="h6" color="primary" gutterBottom>
           {props.name}
         </Typography>
         <Typography component="p" variant="h4">
@@ -51,36 +52,47 @@ export default function DeviceDetail() {
   const [data, setData] = React.useState<DocumentData | null>(null);
   const db = getFirestore();
 
-  onSnapshot(
-    query(collection(db, "devices"), where("id", "==", device), limit(1)),
-    (querySnapshot) => {
-        let dataTemp: DocumentData|null = null;
+  React.useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "devices"), where("id", "==", device), limit(1)),
+      (querySnapshot) => {
+        let dataTemp: DocumentData | null = null;
         querySnapshot.forEach((doc) => {
           dataTemp = doc.data();
         });
-        if (dataTemp == null){
-            return null;
+        if (dataTemp == null) {
+          return null;
         }
         setDeviceData(dataTemp);
-    }
-  );
-
-  if (deviceData) {
-    onSnapshot(
-      query(
-        collection(db, deviceData.collectionName),
-        orderBy("timestamp"),
-        limit(1)
-      ),
-      (querySnapshot) => {
-        let dataTemp: DocumentData = {};
-        querySnapshot.forEach((doc) => {
-          dataTemp = doc.data();
-        });
-        setData(dataTemp);
       }
     );
-  }
+    return () => {
+      unsub();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (deviceData) {
+      const unsub = onSnapshot(
+        query(
+          collection(db, deviceData.collectionName),
+          orderBy("timestamp", "desc"),
+          limit(1)
+        ),
+        (querySnapshot) => {
+          let dataTemp: DocumentData = {};
+          querySnapshot.forEach((doc) => {
+            dataTemp = doc.data();
+          });
+          setData(dataTemp);
+        }
+      );
+      return () => {
+        unsub();
+      };
+    }
+  }, [deviceData]);
+
   if (!data || !deviceData) {
     return (
       <Grid
@@ -100,6 +112,17 @@ export default function DeviceDetail() {
   const formattedDate = format(data.timestamp.toDate(), "MM/dd/yyyy h:mma");
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Typography component="h2" variant="h3" color="primary">
+        Device Detail (ID: {deviceData.id})
+      </Typography>
+      <Typography
+        component="h3"
+        variant="h6"
+        color="text.secondary"
+        gutterBottom
+      >
+        Last Updated: {formattedDate}
+      </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12} lg={12}>
           <Paper
@@ -120,15 +143,26 @@ export default function DeviceDetail() {
               }}
               defaultZoom={14}
             >
-                <Marker
-                  id={deviceData.id}
-                  lat={deviceData.location._lat}
-                  lng={deviceData.location._long}
-                />
+              <Marker
+                id={deviceData.id}
+                lat={deviceData.location._lat}
+                lng={deviceData.location._long}
+              />
             </GoogleMapReact>
           </Paper>
         </Grid>
-        <StatPaper name="Last Update">{formattedDate}</StatPaper>
+        <StatPaper name="Water Tank">
+          {data.water ? "Full" : "Not Full"}
+        </StatPaper>
+        <StatPaper name="Occupancy">
+          {data.pir ? "Occupied" : "Not Occupied"}
+        </StatPaper>
+        <StatPaper name="Door Status">
+          {data.door ? "Closed" : "Open"}
+        </StatPaper>
+        <StatPaper name="Power Status">
+          {data.power_good ? "Bad" : "Good"}{data.charging ? "": ", Charging"}
+        </StatPaper>
         <StatPaper name="Temperature">{data.temp} C</StatPaper>
         <StatPaper name="Humidity">{data.hum}%</StatPaper>
         <StatPaper name="TVOC">{data.tvoc}</StatPaper>
