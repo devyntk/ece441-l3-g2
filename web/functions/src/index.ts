@@ -1,6 +1,10 @@
 import * as admin from 'firebase-admin';
 import * as functions from "firebase-functions";
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import {
+  beforeUserCreated, HttpsError,
+} from "firebase-functions/v2/identity";
+
 
 admin.initializeApp();
 const db = getFirestore();
@@ -57,4 +61,12 @@ export const inputTTN = functions.https.onRequest(async (request, response) => {
   });
 
   response.status(200).send("Worked!");
+});
+
+export const beforecreated = beforeUserCreated((event) => {
+  const user = event.data;
+  if (!user?.email?.includes('@iit.edu')) {
+    throw new HttpsError(
+      'invalid-argument', 'Unauthorized email');
+  }
 });

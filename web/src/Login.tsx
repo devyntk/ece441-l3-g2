@@ -4,11 +4,15 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Alert } from '@mui/material';
+import { useState } from 'react';
 
 function Login() {
 
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
+
+    const [error, setError] = useState<null | string>(null);
 
     return <Box
         sx={{
@@ -29,13 +33,17 @@ function Login() {
                 fullWidth
                 variant="contained"
                 onClick={() => {
-                    signInWithPopup(auth, provider);
+                    signInWithPopup(auth, provider).catch((err)=>{
+                        setError(err.message)
+                    });
                 }}
                 sx={{ mt: 3, mb: 2 }}
             >
                 Sign In With Google
             </Button>
         </Box>
+        {error ?  <Alert onClose={()=>{setError(null)}} severity="error">{error}</Alert> : <></>}
+       
     </Box>
 }
 
